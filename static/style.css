@@ -1,0 +1,258 @@
+:root {
+    --bg-color: #f8f9fa; --sidebar-bg: #ffffff; --primary-color: #007bff; --primary-hover: #0056b3;
+    --secondary-color: #6c757d; --secondary-hover: #5a6268; --border-color: #dee2e6;
+    --text-color: #343a40; --text-light: #6c757d; --error-color: #dc3545; --success-color: #28a745;
+    --font-family: 'Inter', sans-serif; --shadow: 0 4px 6px rgba(0, 0, 0, 0.05); --border-radius: 8px;
+}
+body {
+    font-family: var(--font-family);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    margin: 0;
+    line-height: 1.6;
+}
+
+/* --- NEW LAYOUT FOR INPUT PAGE --- */
+/* --- NEW --- Add this to your style.css file */
+.form-section {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.container {
+    padding: 2rem 1rem;
+}
+.form-container {
+    max-width: 960px;
+    margin: 0 auto;
+    background-color: var(--sidebar-bg);
+    padding: 2.5rem;
+    border-radius: var(--border-radius);
+    box-shadow: var(--shadow);
+}
+.form-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1.5rem;
+}
+.form-header h1 {
+    font-size: 2.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--primary-color);
+}
+.form-header p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+    margin-bottom: 0;
+}
+.grid-2-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* --- SHARED FORM STYLES --- */
+fieldset {
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+legend {
+    font-weight: 700;
+    padding: 0 0.5rem;
+    color: var(--primary-color);
+}
+label, .checkbox-label {
+    display: block;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+.form-group-row, .form-group-column {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px dashed var(--border-color);
+}
+.form-group-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 1rem;
+    align-items: center;
+}
+.form-group-row input { margin-bottom: 0; }
+.form-group-column { display: flex; flex-direction: column; }
+.btn-primary, .btn-secondary, .btn-add, .btn-remove {
+    border: none; padding: 0.75rem 1.5rem; border-radius: 4px;
+    font-weight: 700; cursor: pointer; transition: all 0.2s ease;
+}
+/* --- NEW SHARED BUTTON STYLES (Adjusted border-radius) --- */
+.btn-primary, .btn-secondary, .btn-add, .btn-remove {
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--border-radius); /* Apply curved edges here for all buttons */
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+/* --- NEW PRIMARY BUTTON STYLES (Smaller width, centered, and animation) --- */
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+    display: block;              /* Allows auto margins to center it */
+    margin: 1.5rem auto 1rem auto; /* Top margin, auto left/right for centering, bottom margin */
+    width: 300px;                /* Smaller fixed width */
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); /* Slight shadow for depth */
+    position: relative;          /* Needed for pseudo-element animation */
+    overflow: hidden;            /* Keep magic glow within button bounds */
+    z-index: 1;                  /* Ensure button content is above glow */
+}
+
+.btn-primary:hover:not(:disabled) {
+    background-color: var(--primary-hover);
+    box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+    transform: translateY(-2px); /* Slight lift on hover */
+}
+
+.btn-primary:disabled {
+    background-color: var(--secondary-color);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+
+/* --- MAGIC GLOW EFFECT --- */
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, #ff00ff 0%, #00ffff 25%, #ffff00 50%, #ff00ff 75%, #00ffff 100%); /* Magic colors */
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: width 0s, height 0s, opacity 0s, background 0s; /* Reset for quick activation */
+    z-index: -1; /* Behind the text */
+}
+
+.btn-primary:active::before {
+    width: 300%; /* Expand width to cover button */
+    height: 300%; /* Expand height to cover button */
+    opacity: 1;
+    transition: width 0.5s ease-out, height 0.5s ease-out, opacity 0.3s ease-out; /* Animate expansion */
+    animation: magicGlow 1s forwards; /* Trigger the animation */
+}
+
+/* --- KEYFRAMES FOR THE MAGIC GLOW ANIMATION --- */
+@keyframes magicGlow {
+    0% { background-position: 0% 50%; opacity: 1; }
+    25% { background-position: 100% 50%; }
+    50% { background-position: 0% 50%; }
+    75% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; opacity: 0; }
+}
+/* --- NEW/MODIFIED .btn-secondary styles for magic effect --- */
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+    text-decoration: none;
+    display: inline-block;
+    text-align: center;
+    width: 250px;
+    position: relative; /* Needed for pseudo-element */
+    overflow: hidden;   /* Keep magic glow within button bounds */
+    z-index: 1;         /* Ensure button content is above glow */
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background-color: var(--secondary-hover);
+    /* Optional: Add a slight lift or shadow on hover if desired */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+}
+
+/* --- MAGIC GLOW EFFECT for secondary button --- */
+.btn-secondary::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: radial-gradient(circle, #ff00ff 0%, #00ffff 25%, #ffff00 50%, #ff00ff 75%, #00ffff 100%); /* Magic colors */
+    border-radius: 50%;
+    opacity: 0;
+    transform: translate(-50%, -50%);
+    transition: width 0s, height 0s, opacity 0s, background 0s; /* Reset for quick activation */
+    z-index: -1; /* Behind the text */
+}
+
+.btn-secondary:active::before {
+    width: 300%; /* Expand width to cover button */
+    height: 300%; /* Expand height to cover button */
+    opacity: 1;
+    transition: width 0.5s ease-out, height 0.5s ease-out, opacity 0.3s ease-out; /* Animate expansion */
+    animation: magicGlow 1s forwards; /* Trigger the animation (same keyframes as before) */
+}
+/* --- NEW CODE --- */
+.btn-add {
+    display: block;          /* Allows the button to be centered */
+    margin-left: auto;       /* Horizontally centers the button */
+    margin-right: auto;      /* Horizontally centers the button */
+    width: 300px;            /* Sets a smaller, fixed width */
+    background-color: #e9ecef;
+    color: var(--text-color);
+    padding: 0.9rem;
+    margin-top: 1rem;
+}
+.btn-add:hover { background-color: #ced4da; }
+.btn-remove { background-color: transparent; color: var(--error-color); padding: 0.5rem; font-size: 1.2rem; line-height: 1; margin-left: auto; }
+.status-message { margin-top: 1rem; padding: 1rem; border-radius: var(--border-radius); text-align: center; font-weight: bold; }
+
+/* --- DASHBOARD STYLES --- */
+.dashboard-container { max-width: 1600px; margin: 0 auto; padding: 1rem; }
+.dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; }
+.dashboard-main { display: grid; grid-template-columns: 3fr 1fr; gap: 2rem; }
+.progress-card, .gamify-card { background-color: var(--sidebar-bg); border-radius: var(--border-radius); padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow); }
+.progress-bar-container { background-color: #e9ecef; border-radius: 99px; height: 2rem; overflow: hidden; }
+.progress-bar { background-color: var(--primary-color); color: white; height: 100%; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: width 0.5s ease-in-out; }
+.gamify-card h3 { border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 0; }
+.gamify-card ol { padding-left: 1.5rem; }
+.timetable-table { margin-bottom: 3rem; overflow-x: auto; }
+.timetable-table h2 { font-size: 1.5rem; border-bottom: 2px solid var(--primary-color); padding-bottom: 0.5rem; margin-bottom: 1rem; }
+table { width: 100%; border-collapse: collapse; box-shadow: var(--shadow); }
+th, td { border: 1px solid var(--border-color); padding: 0.5rem; text-align: center; vertical-align: top; }
+thead { background-color: #e9ecef; font-weight: 700; }
+tbody tr:nth-child(even) { background-color: #f8f9fa; }
+td { min-width: 120px; height: 90px; }
+.lecture-subject { font-weight: 700; font-size: 0.9rem; }
+.lecture-teacher { font-size: 0.8rem; color: var(--text-light); }
+.lecture-room { font-size: 0.8rem; font-style: italic; color: var(--primary-color); }
+.slot-cell { position: relative; }
+.approval-actions { position: absolute; top: 2px; right: 2px; display: none; gap: 4px; }
+.slot-cell:hover .approval-actions { display: flex; }
+.btn-approve, .btn-reject { border: 1px solid var(--border-color); background: rgba(255, 255, 255, 0.8); border-radius: 50%; width: 24px; height: 24px; line-height: 22px; text-align: center; cursor: pointer; font-size: 14px; }
+.btn-approve { color: var(--success-color); }
+.btn-reject { color: var(--error-color); }
+.status-pending { background-color: #fff3cd; }
+.status-approved { background-color: #d4edda; }
+.status-change_requested { background-color: #f8d7da; }

@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduler Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <header class="dashboard-header">
+            <h1>Scheduler Dashboard</h1>
+            <a href="/" class="btn-secondary">Generate New Timetable</a>
+        </header>
+        <div class="dashboard-main">
+            <div class="dashboard-content">
+                <h2>Timetable Approval Status</h2>
+
+                <div id="progress-card-container"></div>
+
+                <div id="timetables-container">
+                     <div id="output-placeholder">
+                        <h2>Loading Timetable...</h2>
+                        <p>If no timetable appears, please go back and generate one.</p>
+                    </div>
+                </div>
+            </div>
+            <aside class="dashboard-sidebar">
+                <div class="gamify-card">
+                    <h3>Analytics</h3>
+                    <p><strong>Room Utilization:</strong> <span id="analytics-utilization">--</span>%</p>
+                    <p><strong>Faculty Load:</strong> <span id="analytics-load">--</span></p>
+                    <p><strong>Potential Conflicts:</strong> <span id="analytics-conflicts">--</span></p>
+                </div>
+                <div class="gamify-card">
+                    <h3>Approval Leaderboard</h3>
+                    <ol id="leaderboard-list"></ol>
+                </div>
+            </aside>
+        </div>
+    </div>
+    <script src="/static/script.js?v=2"></script>
+</body>
+</html>
