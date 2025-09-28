@@ -40,47 +40,107 @@ function initializeEmptyForm() {
 }
 
 
-// --- INDEX PAGE LOGIC (Unchanged) ---
+// --- INDEX PAGE LOGIC (Updated) ---
 async function handleGeneration(event) {
     event.preventDefault();
     const generateBtn = document.getElementById('generate-btn');
     const statusMessage = document.getElementById('status-message');
     generateBtn.disabled = true;
-    generateBtn.textContent = 'Generating... Please Wait...';
-    statusMessage.textContent = 'Applying Temporal Harmony Algorithm... This may take a moment.';
+    generateBtn.textContent = 'Generating Multiple Options...';
+    statusMessage.textContent = 'Applying Temporal Harmony Algorithm to generate multiple optimized timetables...';
     statusMessage.style.color = '#007bff';
+
+    const numTimetables = parseInt(document.getElementById('num_timetables').value);
+    const maxClassesPerDay = parseInt(document.getElementById('max_classes_per_day').value);
+    const department = document.getElementById('department').value;
+    const shift = document.getElementById('shift').value;
+
     const data = {
-        config: { DAYS_OF_WEEK: document.getElementById('days').value.split(',').map(s => s.trim()), SLOTS_PER_DAY: parseInt(document.getElementById('slots').value), NUM_GENERATIONS: 100, },
-        rooms: Array.from(document.querySelectorAll('#rooms-list .form-group-row')).map(row => ({"id": row.children[0].value, "capacity": parseInt(row.children[1].value)})),
-        teachers: Object.fromEntries(Array.from(document.querySelectorAll('#teachers-list .form-group-row')).map(row => [row.children[0].value, { name: row.children[1].value, unavailable: row.children[2].value ? row.children[2].value.split(',').map(s => { const parts = s.trim().split(' '); return [parts[0], parseInt(parts[1])]; }) : [] }])),
-        batches: Object.fromEntries(Array.from(document.querySelectorAll('#batches-list .form-group-row')).map(row => [row.children[0].value, { name: row.children[1].value, size: parseInt(row.children[2].value) }])),
-        subjects: Array.from(document.querySelectorAll('#subjects-list .form-group-column')).map(col => ({ id: col.children[0].value, name: col.children[1].value, per_week: parseInt(col.children[2].value), teacher: col.children[3].value, batches: col.children[4].value.split(',').map(s => s.trim()), needs_lab: col.children[5].querySelector('input').checked }))
+        config: {
+            DAYS_OF_WEEK: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+            SLOTS_PER_DAY: 4,
+            MAX_CLASSES_PER_DAY: maxClassesPerDay,
+            NUM_TIMETABLES: numTimetables,
+            HARMONY_MEMORY_SIZE: 20,
+            PITCH_ADJUSTMENT_RATE: 0.3,
+            NUM_GENERATIONS: 100,
+            DEPARTMENT: department,
+            SHIFT: shift
+        },
+        rooms: Array.from(document.querySelectorAll('#rooms-list .form-group-row')).map(row => ({
+            "id": row.children[0].value,
+            "name": row.children[1].value,
+            "capacity": parseInt(row.children[2].value),
+            "room_type": row.children[3].value,
+            "department": department
+        })),
+        teachers: Object.fromEntries(Array.from(document.querySelectorAll('#teachers-list .form-group-row')).map(row => [
+            row.children[0].value,
+            {
+                name: row.children[1].value,
+                subjects: row.children[2].value.split(',').map(s => s.trim()),
+                leaves_per_month: parseInt(row.children[3].value),
+                unavailable: row.children[4].value ? row.children[4].value.split(',').map(s => s.trim()) : [],
+                department: department,
+                email: row.children[5].value
+            }
+        ])),
+        batches: Object.fromEntries(Array.from(document.querySelectorAll('#batches-list .form-group-row')).map(row => [
+            row.children[0].value,
+            {
+                name: row.children[1].value,
+                size: parseInt(row.children[2].value),
+                department: department,
+                shift: shift
+            }
+        ])),
+        subjects: Array.from(document.querySelectorAll('#subjects-list .form-group-column')).map(col => ({
+            id: col.children[0].value,
+            name: col.children[1].value,
+            per_week: parseInt(col.children[2].value),
+            teacher: col.children[3].value,
+            batches: col.children[4].value.split(',').map(s => s.trim()),
+            needs_lab: col.children[5].querySelector('input').checked,
+            fixed_slots: col.children[6].value ? JSON.parse(col.children[6].value) : [],
+            department: department,
+            credits: parseInt(col.children[7].value)
+        }))
     };
+
     try {
-        const response = await fetch('/api/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
-        if (!response.ok) { const error = await response.json(); throw new Error(error.error || 'Failed to generate timetable.'); }
-        statusMessage.textContent = 'Success! Redirecting...';
+        const response = await fetch('/api/generate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to generate timetables.');
+        }
+
+        const result = await response.json();
+        statusMessage.textContent = `Success! Generated ${result.timetables.length} optimized timetable options. Redirecting...`;
         statusMessage.style.color = '#28a745';
-        window.location.href = '/dashboard';
+        setTimeout(() => {
+            window.location.href = '/dashboard';
+        }, 2000);
+
     } catch (error) {
         statusMessage.textContent = `Error: ${error.message}`;
         statusMessage.style.color = '#dc3545';
         generateBtn.disabled = false;
-        generateBtn.textContent = 'Generate & Go to Dashboard';
+        generateBtn.textContent = 'Generate Timetables';
     }
 }
 
-// --- DASHBOARD PAGE LOGIC (Unchanged) ---
+// --- DASHBOARD PAGE LOGIC (Updated) ---
 async function loadDashboardData() {
-    console.log("✅ Running the LATEST version of the script file! Version 3 (Day Sort Fix).");
+    console.log("✅ Running the LATEST version of the script file! Version 4 (Multiple Timetables).");
     try {
         const response = await fetch('/api/dashboard-data');
         if (!response.ok) throw new Error('Could not fetch data.');
         const data = await response.json();
-        if (!data.timetable || data.timetable.length === 0) {
-            document.getElementById('timetables-container').innerHTML = `<div id="output-placeholder"><h2>No Timetable Generated</h2><p>Please go to the main page to generate a timetable.</p></div>`;
-            return;
-        }
         updateDashboardUI(data);
     } catch (error) {
         console.error('Dashboard Error:', error);
@@ -90,12 +150,70 @@ async function loadDashboardData() {
 
 function updateDashboardUI(data) {
     const stats = data.stats;
-    document.getElementById('progress-card-container').innerHTML = `<div class="progress-card"><h3>Approval Progress: ${stats.approved_slots} / ${stats.total_slots} Slots Approved</h3><div class="progress-bar-container"><div class="progress-bar" style="width: ${stats.approval_progress}%;">${stats.approval_progress}%</div></div></div>`;
+    const users = data.users || [];
+
+    // Create modern progress card
+    const progressCard = document.createElement('div');
+    progressCard.className = 'progress-card glass-card';
+    progressCard.innerHTML = `
+        <h3><i class="fas fa-chart-pie"></i> Approval Progress</h3>
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+            <div style="font-size: 2rem; font-weight: bold; color: var(--primary-color);">
+                ${stats.approved_slots}/${stats.total_slots}
+            </div>
+            <div style="flex: 1;">
+                <div class="progress-bar-container">
+                    <div class="progress-bar" style="width: ${stats.approval_progress}%;">${stats.approval_progress.toFixed(1)}%</div>
+                </div>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 1rem; font-size: 0.875rem;">
+            <div style="text-align: center; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2);">
+                <div style="font-weight: bold; color: var(--success-color); font-size: 1.25rem;">${stats.approved_slots}</div>
+                <div style="color: var(--text-secondary);">Approved</div>
+            </div>
+            <div style="text-align: center; padding: 0.5rem; background: rgba(245, 158, 11, 0.1); border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.2);">
+                <div style="font-weight: bold; color: var(--warning-color); font-size: 1.25rem;">${stats.total_slots - stats.approved_slots}</div>
+                <div style="color: var(--text-secondary);">Pending</div>
+            </div>
+            <div style="text-align: center; padding: 0.5rem; background: rgba(6, 182, 212, 0.1); border-radius: 8px; border: 1px solid rgba(6, 182, 212, 0.2);">
+                <div style="font-weight: bold; color: var(--info-color); font-size: 1.25rem;">${stats.utilization}</div>
+                <div style="color: var(--text-secondary);">Utilization</div>
+            </div>
+        </div>
+    `;
+
+    document.getElementById('progress-card-container').innerHTML = '';
+    document.getElementById('progress-card-container').appendChild(progressCard);
+
+    // Update analytics
     document.getElementById('analytics-utilization').textContent = stats.utilization;
     document.getElementById('analytics-load').textContent = stats.load_status;
     document.getElementById('analytics-conflicts').textContent = stats.conflicts;
+
+    // Update leaderboard with better formatting
     const leaderboardList = document.getElementById('leaderboard-list');
-    leaderboardList.innerHTML = data.users.map(user => `<li>${user.username} - <strong>${user.points} pts</strong></li>`).join('');
+    if (users.length > 0) {
+        leaderboardList.innerHTML = users
+            .sort((a, b) => b.points - a.points)
+            .slice(0, 5)
+            .map((user, index) => {
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '🏅';
+                return `<li style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>${medal} ${user.username}</span>
+                    <span style="font-weight: bold; color: var(--primary-color);">${user.points} pts</span>
+                </li>`;
+            })
+            .join('');
+    } else {
+        leaderboardList.innerHTML = '<li style="text-align: center; color: var(--text-light);"><em>No approvals yet</em></li>';
+    }
+
+    // Update quick stats
+    document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+    document.getElementById('active-users').textContent = users.length;
+    document.getElementById('weekly-approvals').textContent = stats.approved_slots;
+
     renderTimetables(data.timetable);
 }
 
@@ -132,6 +250,8 @@ function renderTimetables(slots) {
         container.appendChild(tableContainer);
     }
 }
+
+
 
 async function approveSlot(slotId) {
     const cell = document.getElementById(`slot-${slotId}`);

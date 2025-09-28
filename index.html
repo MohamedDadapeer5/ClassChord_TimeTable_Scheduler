@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ClassChord Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+        }
+        .textarea-container {
+            position: relative;
+        }
+        .textarea-label {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.75rem;
+            font-size: 0.875rem;
+            color: #6b7280;
+            pointer-events: none;
+            transition: transform 0.2s ease, font-size 0.2s ease;
+        }
+        .textarea-field:focus + .textarea-label,
+        .textarea-field:not(:placeholder-shown) + .textarea-label {
+            transform: translateY(-1.5rem);
+            font-size: 0.75rem;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="p-8 bg-gray-100 flex flex-col items-center min-h-screen">
+    <div class="w-full max-w-4xl bg-white rounded-xl shadow-lg p-8">
+        <!-- Header -->
+        <header class="flex justify-between items-center mb-8 pb-4 border-b border-gray-300">
+            <h1 class="text-3xl font-bold text-gray-800">ClassChord Generator</h1>
+            <a href="/dashboard" class="text-sm font-medium text-blue-600 hover:text-blue-800 transition-colors">
+                Go to Dashboard
+            </a>
+        </header>
+
+        <!-- Generator Form -->
+        <form id="generator-form" class="space-y-6">
+            <p class="text-gray-600 mb-6">
+                Paste your data below to generate a new timetable. Please ensure the data is in valid JSON format.
+            </p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Config -->
+                <div class="textarea-container">
+                    <label for="config" class="sr-only">Config</label>
+                    <textarea id="config" class="textarea-field w-full p-3 h-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder=" "></textarea>
+                    <span class="textarea-label">Config (JSON)</span>
+                </div>
+
+                <!-- Rooms -->
+                <div class="textarea-container">
+                    <label for="rooms" class="sr-only">Rooms</label>
+                    <textarea id="rooms" class="textarea-field w-full p-3 h-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder=" "></textarea>
+                    <span class="textarea-label">Rooms (JSON Array)</span>
+                </div>
+
+                <!-- Teachers -->
+                <div class="textarea-container">
+                    <label for="teachers" class="sr-only">Teachers</label>
+                    <textarea id="teachers" class="textarea-field w-full p-3 h-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder=" "></textarea>
+                    <span class="textarea-label">Teachers (JSON Object)</span>
+                </div>
+
+                <!-- Batches -->
+                <div class="textarea-container">
+                    <label for="batches" class="sr-only">Batches</label>
+                    <textarea id="batches" class="textarea-field w-full p-3 h-32 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder=" "></textarea>
+                    <span class="textarea-label">Batches (JSON Object)</span>
+                </div>
+
+                <!-- Subjects -->
+                <div class="textarea-container col-span-1 md:col-span-2">
+                    <label for="subjects" class="sr-only">Subjects</label>
+                    <textarea id="subjects" class="textarea-field w-full p-3 h-48 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition-shadow" placeholder=" "></textarea>
+                    <span class="textarea-label">Subjects (JSON Array)</span>
+                </div>
+            </div>
+
+            <!-- Buttons and Status -->
+            <div class="flex flex-col items-center space-y-4">
+                <button type="button" id="generate-btn" class="w-full md:w-auto px-8 py-3 bg-blue-600 text-white rounded-full font-bold shadow-md hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
+                    Generate Timetable
+                </button>
+                <div id="status-message" class="text-sm font-medium text-center"></div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const configTextarea = document.getElementById('config');
+            const roomsTextarea = document.getElementById('rooms');
+            const teachersTextarea = document.getElementById('teachers');
+            const batchesTextarea = document.getElementById('batches');
+            const subjectsTextarea = document.getElementById('subjects');
+            const generateBtn = document.getElementById('generate-btn');
+            const statusMessage = document.getElementById('status-message');
+
+            const initialData = {
+                "config": {
+                    "DAYS_OF_WEEK": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+                    "SLOTS_PER_DAY": 5,
+                    "HARMONY_MEMORY_SIZE": 20,
+                    "PITCH_ADJUSTMENT_RATE": 0.3,
+                    "NUM_GENERATIONS": 100
+                },
+                "rooms": [
+                    {"id": "Room 101", "capacity": 50, "location": "Main Building"},
+                    {"id": "Lab A", "capacity": 30, "location": "Science Block"},
+                    {"id": "Room 203", "capacity": 60, "location": "Main Building"}
+                ],
+                "teachers": {
+                    "T1": {"name": "Prof. Smith", "unavailable": [["Monday", 2], ["Wednesday", 4]]},
+                    "T2": {"name": "Dr. Jones", "unavailable": []},
+                    "T3": {"name": "Prof. Williams", "unavailable": [["Friday", 0]]}
+                },
+                "batches": {
+                    "B1": {"name": "Batch A", "size": 45},
+                    "B2": {"name": "Batch B", "size": 28}
+                },
+                "subjects": [
+                    {"id": "S1", "name": "Physics", "teacher": "T1", "batches": ["B1"], "per_week": 3, "needs_lab": true},
+                    {"id": "S2", "name": "Chemistry", "teacher": "T2", "batches": ["B1", "B2"], "per_week": 2, "needs_lab": false},
+                    {"id": "S3", "name": "Calculus", "teacher": "T3", "batches": ["B1", "B2"], "per_week": 4, "needs_lab": false}
+                ]
+            };
+
+            // Populate textareas with example data
+            configTextarea.value = JSON.stringify(initialData.config, null, 2);
+            roomsTextarea.value = JSON.stringify(initialData.rooms, null, 2);
+            teachersTextarea.value = JSON.stringify(initialData.teachers, null, 2);
+            batchesTextarea.value = JSON.stringify(initialData.batches, null, 2);
+            subjectsTextarea.value = JSON.stringify(initialData.subjects, null, 2);
+
+            generateBtn.addEventListener('click', async () => {
+                let data = {};
+                try {
+                    data.config = JSON.parse(configTextarea.value);
+                    data.rooms = JSON.parse(roomsTextarea.value);
+                    data.teachers = JSON.parse(teachersTextarea.value);
+                    data.batches = JSON.parse(batchesTextarea.value);
+                    data.subjects = JSON.parse(subjectsTextarea.value);
+                } catch (e) {
+                    statusMessage.textContent = 'Error: Invalid JSON format in one of the fields. Please check your input.';
+                    statusMessage.style.color = 'red';
+                    return;
+                }
+
+                generateBtn.disabled = true;
+                statusMessage.textContent = 'Generating timetable... This may take a moment.';
+                statusMessage.style.color = 'black';
+
+                // Add the Firebase configuration and app ID to the request body
+                const requestBody = {
+                    ...data,
+                    firebaseConfig: typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : null,
+                    appId: typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'
+                };
+
+                try {
+                    const response = await fetch('/api/generate', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(requestBody)
+                    });
+                    const result = await response.json();
+                    if (response.ok) {
+                        statusMessage.textContent = 'Success! ' + result.message;
+                        statusMessage.style.color = 'green';
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 2000);
+                    } else {
+                        statusMessage.textContent = 'Error: ' + (result.error || 'Failed to generate timetable.');
+                        statusMessage.style.color = 'red';
+                    }
+                } catch (error) {
+                    console.error('Generation failed:', error);
+                    statusMessage.textContent = 'An unexpected error occurred. Please try again.';
+                    statusMessage.style.color = 'red';
+                } finally {
+                    generateBtn.disabled = false;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

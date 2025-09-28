@@ -3,67 +3,1548 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Smart Timetable Scheduler - Input</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>ClassChord - Higher Education Timetable Scheduler</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .navbar {
+            background: rgba(255, 255, 255, 0.95) !important;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+        .card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 30px;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .feature-card {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+        .tab-content {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <main class="form-container">
-            <div class="form-header">
-                <h1>Smart Scheduler 📅</h1>
-                <p>Define your institution's constraints to generate an optimal timetable.</p>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand fw-bold text-primary" href="#">
+                <i class="fas fa-calendar-alt me-2"></i>
+                ClassChord Timetable Scheduler
+            </a>
+            <div class="d-flex align-items-center">
+                <span class="text-dark me-3">
+                    <i class="fas fa-user me-1"></i>
+                    Welcome, {{ current_user.username }} ({{ current_user.role.title() }})
+                </span>
+                <a class="btn btn-outline-primary me-2" href="{{ url_for('serve_dashboard') }}">
+                    <i class="fas fa-chart-bar me-1"></i>Dashboard
+                </a>
+                <a class="btn btn-outline-danger" href="{{ url_for('logout') }}">
+                    <i class="fas fa-sign-out-alt me-1"></i>Logout
+                </a>
             </div>
-            
-            <div class="form-section">
-                <button id="load-sample-data" class="btn-secondary">Load Sample Data</button>
-            </div>
-            
-            <form id="timetable-form">
-                <fieldset>
-                    <legend>Configuration</legend>
-                    <div class="grid-2-col">
-                        <div>
-                            <label for="days">Days (comma-separated)</label>
-                            <input type="text" id="days" value="Mon,Tue,Wed,Thu,Fri" required>
+        </div>
+    </nav>
+
+    <div class="container-fluid py-5">
+        <!-- Hero Section -->
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-10">
+                <div class="text-center mb-5">
+                    <div class="feature-card mb-4">
+                        <h1 class="display-4 fw-bold text-primary mb-3">
+                            <i class="fas fa-calendar-check me-3"></i>
+                            Higher Education Timetable Scheduler
+                        </h1>
+                        <p class="lead text-muted fs-5">
+                            Generate optimized, conflict-free timetables using advanced Temporal Harmony Algorithm for maximum classroom utilization and faculty efficiency.
+                        </p>
+                        <p class="text-muted small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            Start by adding your classrooms, faculty, subjects, and batches using the "Add" buttons below, or click "Load Sample Data" to try with demo data. Use "Clear All Data" to start fresh.
+                        </p>
+                    </div>
+
+                    <div class="row justify-content-center mt-4">
+                        <div class="col-md-3 mb-3">
+                            <div class="feature-card h-100">
+                                <i class="fas fa-brain fa-3x text-primary mb-3"></i>
+                                <h5 class="fw-bold">AI-Powered Optimization</h5>
+                                <p class="text-muted">Advanced algorithms for perfect scheduling</p>
+                            </div>
                         </div>
-                        <div>
-                           <label for="slots">Slots per Day</label>
-                         <input type="number" id="slots" placeholder="e.g., 5" min="1" required>
+                        <div class="col-md-3 mb-3">
+                            <div class="feature-card h-100">
+                                <i class="fas fa-clock fa-3x text-success mb-3"></i>
+                                <h5 class="fw-bold">Conflict-Free Scheduling</h5>
+                                <p class="text-muted">Zero clashes, maximum efficiency</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="feature-card h-100">
+                                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                                <h5 class="fw-bold">Multi-User Approval</h5>
+                                <p class="text-muted">Collaborative workflow system</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <div class="feature-card h-100">
+                                <i class="fas fa-chart-line fa-3x text-warning mb-3"></i>
+                                <h5 class="fw-bold">Real-Time Analytics</h5>
+                                <p class="text-muted">Comprehensive performance metrics</p>
+                            </div>
                         </div>
                     </div>
-                </fieldset>
-                
-                <fieldset>
-                    <legend>Rooms</legend>
-                    <div id="rooms-list"></div>
-                    <button type="button" class="btn-add" onclick="addRoom()">+ Add Room</button>
-                </fieldset>
-                
-                <fieldset>
-                    <legend>Teachers</legend>
-                    <div id="teachers-list"></div>
-                    <button type="button" class="btn-add" onclick="addTeacher()">+ Add Teacher</button>
-                </fieldset>
-                
-                <fieldset>
-                    <legend>Batches</legend>
-                    <div id="batches-list"></div>
-                    <button type="button" class="btn-add" onclick="addBatch()">+ Add Batch</button>
-                </fieldset>
-                
-                <fieldset>
-                    <legend>Subjects</legend>
-                    <div id="subjects-list"></div>
-                    <button type="button" class="btn-add" onclick="addSubject()">+ Add Subject</button>
-                </fieldset>
-                
-                <button type="submit" id="generate-btn" class="btn-primary">Generate & Go to Dashboard</button>
-            </form>
-            <div id="status-message" class="status-message"></div>
-        </main>
+                </div>
+            </div>
+        </div>
+
+        <!-- Configuration Form -->
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">
+                            <i class="fas fa-cogs me-2"></i>
+                            Configure Your Timetable Parameters
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Tabs Navigation -->
+                        <ul class="nav nav-tabs mb-4" id="configTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="config-tab" data-bs-toggle="tab" data-bs-target="#config" type="button" role="tab">
+                                    <i class="fas fa-cog me-1"></i>Basic Config
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="classrooms-tab" data-bs-toggle="tab" data-bs-target="#classrooms" type="button" role="tab">
+                                    <i class="fas fa-building me-1"></i>Classrooms
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="faculty-tab" data-bs-toggle="tab" data-bs-target="#faculty" type="button" role="tab">
+                                    <i class="fas fa-users me-1"></i>Faculty
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="subjects-tab" data-bs-toggle="tab" data-bs-target="#subjects" type="button" role="tab">
+                                    <i class="fas fa-book me-1"></i>Subjects
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="batches-tab" data-bs-toggle="tab" data-bs-target="#batches" type="button" role="tab">
+                                    <i class="fas fa-graduation-cap me-1"></i>Batches
+                                </button>
+                            </li>
+                        </ul>
+
+                        <form id="timetable-form">
+                            <!-- Tab Content -->
+                            <div class="tab-content" id="configTabsContent">
+                                <!-- Configuration Tab -->
+                                <div class="tab-pane fade show active" id="config" role="tabpanel">
+                                    <h5 class="mb-3">Basic Configuration Parameters</h5>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Days per Week</label>
+                                            <select class="form-select" id="daysPerWeek">
+                                                <option value="5">5 Days (Mon-Fri)</option>
+                                                <option value="6">6 Days (Mon-Sat)</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Slots per Day</label>
+                                            <select class="form-select" id="slotsPerDay">
+                                                <option value="4">4 Slots</option>
+                                                <option value="5">5 Slots</option>
+                                                <option value="6">6 Slots</option>
+                                                <option value="7">7 Slots</option>
+                                                <option value="8">8 Slots</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Max Classes per Day (per Faculty)</label>
+                                            <input type="number" class="form-control" id="maxClassesPerDay" value="4" min="1" max="8">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Algorithm Iterations</label>
+                                            <input type="number" class="form-control" id="iterations" value="100" min="50" max="1000">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Harmony Memory Size</label>
+                                            <input type="number" class="form-control" id="harmonyMemorySize" value="20" min="5" max="50">
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <label class="form-label fw-bold">Pitch Adjustment Rate</label>
+                                            <input type="number" class="form-control" id="pitchAdjustmentRate" value="0.3" min="0.1" max="1.0" step="0.1">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Classrooms Tab -->
+                                <div class="tab-pane fade" id="classrooms" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">Classroom Configuration</h5>
+                                        <button type="button" class="btn btn-success" onclick="addClassroom()">
+                                            <i class="fas fa-plus me-1"></i>Add Classroom
+                                        </button>
+                                    </div>
+                                    <div id="classrooms-container">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-building fa-3x mb-3"></i>
+                                            <p>No classrooms added yet. Click "Add Classroom" to get started.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Faculty Tab -->
+                                <div class="tab-pane fade" id="faculty" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">Faculty Configuration</h5>
+                                        <button type="button" class="btn btn-success" onclick="addFaculty()">
+                                            <i class="fas fa-plus me-1"></i>Add Faculty
+                                        </button>
+                                    </div>
+                                    <div id="faculty-container">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-users fa-3x mb-3"></i>
+                                            <p>No faculty added yet. Click "Add Faculty" to get started.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Subjects Tab -->
+                                <div class="tab-pane fade" id="subjects" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">Subject Configuration</h5>
+                                        <button type="button" class="btn btn-success" onclick="addSubject()">
+                                            <i class="fas fa-plus me-1"></i>Add Subject
+                                        </button>
+                                    </div>
+                                    <div id="subjects-container">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-book fa-3x mb-3"></i>
+                                            <p>No subjects added yet. Click "Add Subject" to get started.</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Batches Tab -->
+                                <div class="tab-pane fade" id="batches" role="tabpanel">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0">Student Batch Configuration</h5>
+                                        <button type="button" class="btn btn-success" onclick="addBatch()">
+                                            <i class="fas fa-plus me-1"></i>Add Batch
+                                        </button>
+                                    </div>
+                                    <div id="batches-container">
+                                        <div class="text-center text-muted py-4">
+                                            <i class="fas fa-graduation-cap fa-3x mb-3"></i>
+                                            <p>No batches added yet. Click "Add Batch" to get started.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Generate Button -->
+                            <div class="text-center mt-4">
+                                <button type="button" class="btn btn-primary btn-lg px-5 me-3" onclick="generateTimetable()">
+                                    <i class="fas fa-magic me-2"></i>
+                                    Generate Optimized Timetable
+                                </button>
+                                <button type="button" class="btn btn-secondary btn-lg px-4 me-2" onclick="loadSampleData()">
+                                    <i class="fas fa-database me-2"></i>
+                                    Load Sample Data
+                                </button>
+                                <button type="button" class="btn btn-outline-danger btn-lg px-4" onclick="clearAllData()">
+                                    <i class="fas fa-trash me-2"></i>
+                                    Clear All Data
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div class="row justify-content-center mt-5">
+            <div class="col-lg-10">
+                <div id="results-section" class="d-none">
+                    <div class="card">
+                        <div class="card-header bg-success text-white">
+                            <h4 class="mb-0">
+                                <i class="fas fa-check-circle me-2"></i>
+                                Generated Timetables
+                            </h4>
+                        </div>
+                        <div class="card-body">
+                            <div id="timetable-results">
+                                <!-- Results will be displayed here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <script src="/static/script.js?v=2"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global data storage
+        let classrooms = [];
+        let faculty = [];
+        let subjects = [];
+        let batches = [];
+
+        // Configuration
+        const config = {
+            daysPerWeek: 5,
+            slotsPerDay: 4,
+            maxClassesPerDay: 4,
+            iterations: 100,
+            harmonyMemorySize: 20,
+            pitchAdjustmentRate: 0.3
+        };
+
+        // Load data from API
+        async function loadData() {
+            try {
+                const [classroomsRes, facultyRes, subjectsRes, batchesRes] = await Promise.all([
+                    fetch('/api/classrooms'),
+                    fetch('/api/faculty'),
+                    fetch('/api/subjects'),
+                    fetch('/api/batches')
+                ]);
+
+                if (classroomsRes.ok) classrooms = await classroomsRes.json();
+                if (facultyRes.ok) faculty = await facultyRes.json();
+                if (subjectsRes.ok) subjects = await subjectsRes.json();
+                if (batchesRes.ok) batches = await batchesRes.json();
+
+                renderAllData();
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Render all data to UI
+        function renderAllData() {
+            renderClassrooms();
+            renderFaculty();
+            renderSubjects();
+            renderBatches();
+        }
+
+        // Classroom functions
+        function addClassroom() {
+            // Reset form
+            document.getElementById('classroomForm').reset();
+            document.getElementById('classroomEditMode').value = 'false';
+            document.getElementById('classroomId').readOnly = false;
+            document.getElementById('classroomModalLabel').textContent = 'Add Classroom';
+            document.getElementById('classroomSaveBtn').textContent = 'Add Classroom';
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('classroomModal'));
+            modal.show();
+        }
+
+        function editClassroom(id) {
+            const classroom = classrooms.find(c => c.id === id);
+            if (!classroom) return;
+
+            // Populate form
+            document.getElementById('classroomId').value = classroom.id;
+            document.getElementById('classroomName').value = classroom.name;
+            document.getElementById('classroomCapacity').value = classroom.capacity;
+            document.getElementById('classroomType').value = classroom.room_type;
+            document.getElementById('classroomEditMode').value = 'true';
+            document.getElementById('classroomId').readOnly = true;
+            document.getElementById('classroomModalLabel').textContent = 'Edit Classroom';
+            document.getElementById('classroomSaveBtn').textContent = 'Update Classroom';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('classroomModal'));
+            modal.show();
+        }
+
+        async function saveClassroom() {
+            const id = document.getElementById('classroomId').value.trim();
+            const name = document.getElementById('classroomName').value.trim();
+            const capacity = parseInt(document.getElementById('classroomCapacity').value);
+            const roomType = document.getElementById('classroomType').value;
+            const isEdit = document.getElementById('classroomEditMode').value === 'true';
+
+            if (!id || !name || !capacity || !roomType) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            if (!isEdit) {
+                // Check for duplicate ID
+                if (classrooms.some(c => c.id === id)) {
+                    alert('A classroom with this ID already exists.');
+                    return;
+                }
+            }
+
+            try {
+                const data = {
+                    id: id,
+                    name: name,
+                    capacity: capacity,
+                    room_type: roomType
+                };
+
+                const response = await fetch(`/api/classrooms${isEdit ? `/${id}` : ''}`, {
+                    method: isEdit ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    if (isEdit) {
+                        // Update existing classroom
+                        const index = classrooms.findIndex(c => c.id === id);
+                        if (index !== -1) {
+                            classrooms[index] = { id, name, capacity, room_type: roomType };
+                        }
+                    } else {
+                        // Add new classroom
+                        classrooms.push({ id, name, capacity, room_type: roomType });
+                    }
+                    renderClassrooms();
+
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('classroomModal'));
+                    modal.hide();
+
+                    // Show success message
+                    showToast(`Classroom ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
+                } else {
+                    const error = await response.json();
+                    alert(`Error ${isEdit ? 'updating' : 'saving'} classroom: ` + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Error ${isEdit ? 'updating' : 'saving'} classroom. Please try again.`);
+            }
+        }
+
+        function renderClassrooms() {
+            const container = document.getElementById('classrooms-container');
+            if (classrooms.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-building fa-3x mb-3"></i>
+                        <p>No classrooms added yet. Click "Add Classroom" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = classrooms.map(c => `
+                <div class="card mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="text-primary">${c.id}</strong>
+                            <span class="badge bg-secondary ms-2">${c.room_type}</span><br>
+                            <small class="text-muted">${c.name} - ${c.capacity} seats</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="editClassroom('${c.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeClassroom('${c.id}')">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeClassroom(id) {
+            classrooms = classrooms.filter(c => c.id !== id);
+            renderClassrooms();
+        }
+
+        // Faculty functions
+        function addFaculty() {
+            // Reset form
+            document.getElementById('facultyForm').reset();
+            document.getElementById('facultyEditMode').value = 'false';
+            document.getElementById('facultyId').readOnly = false;
+            document.getElementById('facultyModalLabel').textContent = 'Add Faculty';
+            document.getElementById('facultySaveBtn').textContent = 'Add Faculty';
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('facultyModal'));
+            modal.show();
+        }
+
+        function editFaculty(id) {
+            const facultyMember = faculty.find(f => f.id === id);
+            if (!facultyMember) return;
+
+            // Populate form
+            document.getElementById('facultyId').value = facultyMember.id;
+            document.getElementById('facultyName').value = facultyMember.name;
+            document.getElementById('facultySubjects').value = facultyMember.subjects.join(', ');
+            document.getElementById('facultyDepartment').value = facultyMember.department;
+            document.getElementById('facultyEditMode').value = 'true';
+            document.getElementById('facultyId').readOnly = true;
+            document.getElementById('facultyModalLabel').textContent = 'Edit Faculty';
+            document.getElementById('facultySaveBtn').textContent = 'Update Faculty';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('facultyModal'));
+            modal.show();
+        }
+
+        async function saveFaculty() {
+            const id = document.getElementById('facultyId').value.trim();
+            const name = document.getElementById('facultyName').value.trim();
+            const subjectsList = document.getElementById('facultySubjects').value.trim();
+            const department = document.getElementById('facultyDepartment').value.trim();
+            const isEdit = document.getElementById('facultyEditMode').value === 'true';
+
+            if (!id || !name || !subjectsList) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            if (!isEdit) {
+                // Check for duplicate ID
+                if (faculty.some(f => f.id === id)) {
+                    alert('A faculty member with this ID already exists.');
+                    return;
+                }
+            }
+
+            try {
+                const data = {
+                    id: id,
+                    name: name,
+                    subjects: subjectsList.split(',').map(s => s.trim()),
+                    department: department || 'General'
+                };
+
+                const response = await fetch(`/api/faculty${isEdit ? `/${id}` : ''}`, {
+                    method: isEdit ? 'PUT' : 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    if (isEdit) {
+                        // Update existing faculty
+                        const index = faculty.findIndex(f => f.id === id);
+                        if (index !== -1) {
+                            faculty[index] = {
+                                id,
+                                name,
+                                subjects: subjectsList.split(',').map(s => s.trim()),
+                                department: department || 'General'
+                            };
+                        }
+                    } else {
+                        // Add new faculty
+                        faculty.push({
+                            id,
+                            name,
+                            subjects: subjectsList.split(',').map(s => s.trim()),
+                            department: department || 'General'
+                        });
+                    }
+                    renderFaculty();
+
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('facultyModal'));
+                    modal.hide();
+
+                    // Show success message
+                    showToast(`Faculty ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
+                } else {
+                    const error = await response.json();
+                    alert(`Error ${isEdit ? 'updating' : 'saving'} faculty: ` + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Error ${isEdit ? 'updating' : 'saving'} faculty. Please try again.`);
+            }
+        }
+
+        function renderFaculty() {
+            const container = document.getElementById('faculty-container');
+            if (faculty.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <p>No faculty added yet. Click "Add Faculty" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = faculty.map(f => `
+                <div class="card mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="text-primary">${f.id}</strong>
+                            <span class="badge bg-info ms-2">${f.department}</span><br>
+                            <small class="text-muted">${f.name}</small><br>
+                            <small class="text-muted">Subjects: ${f.subjects.join(', ')}</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="editFaculty('${f.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeFaculty('${f.id}')">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeFaculty(id) {
+            faculty = faculty.filter(f => f.id !== id);
+            renderFaculty();
+        }
+
+        // Subject functions
+        function addSubject() {
+            // Reset form
+            document.getElementById('subjectForm').reset();
+            document.getElementById('subjectEditMode').value = 'false';
+            document.getElementById('subjectId').readOnly = false;
+            document.getElementById('subjectModalLabel').textContent = 'Add Subject';
+            document.getElementById('subjectSaveBtn').textContent = 'Add Subject';
+
+            // Populate teacher dropdown
+            const teacherSelect = document.getElementById('subjectTeacher');
+            teacherSelect.innerHTML = '<option value="">Select teacher</option>';
+            faculty.forEach(f => {
+                const option = document.createElement('option');
+                option.value = f.id;
+                option.textContent = `${f.name} (${f.id})`;
+                teacherSelect.appendChild(option);
+            });
+
+            // Populate batch checkboxes
+            const batchesContainer = document.getElementById('batchesCheckboxes');
+            batchesContainer.innerHTML = '<div class="form-text mb-2">Select batches for this subject:</div>';
+            batches.forEach(b => {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'form-check';
+                checkboxDiv.innerHTML = `
+                    <input class="form-check-input batch-checkbox" type="checkbox" value="${b.id}" id="batch_${b.id}">
+                    <label class="form-check-label" for="batch_${b.id}">
+                        ${b.name} (${b.id}) - ${b.size} students
+                    </label>
+                `;
+                batchesContainer.appendChild(checkboxDiv);
+            });
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('subjectModal'));
+            modal.show();
+        }
+
+        function editSubject(id) {
+            const subject = subjects.find(s => s.id === id);
+            if (!subject) return;
+
+            // Populate form
+            document.getElementById('subjectId').value = subject.id;
+            document.getElementById('subjectName').value = subject.name;
+            document.getElementById('subjectTeacher').value = subject.teacher;
+            document.getElementById('subjectPerWeek').value = subject.per_week;
+            document.getElementById('subjectNeedsLab').checked = subject.needs_lab;
+            document.getElementById('subjectEditMode').value = 'true';
+            document.getElementById('subjectId').readOnly = true;
+            document.getElementById('subjectModalLabel').textContent = 'Edit Subject';
+            document.getElementById('subjectSaveBtn').textContent = 'Update Subject';
+
+            // Populate batch checkboxes
+            const batchesContainer = document.getElementById('batchesCheckboxes');
+            batchesContainer.innerHTML = '<div class="form-text mb-2">Select batches for this subject:</div>';
+            batches.forEach(b => {
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'form-check';
+                checkboxDiv.innerHTML = `
+                    <input class="form-check-input batch-checkbox" type="checkbox" value="${b.id}" id="batch_${b.id}" ${subject.batches.includes(b.id) ? 'checked' : ''}>
+                    <label class="form-check-label" for="batch_${b.id}">
+                        ${b.name} (${b.id}) - ${b.size} students
+                    </label>
+                `;
+                batchesContainer.appendChild(checkboxDiv);
+            });
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('subjectModal'));
+            modal.show();
+        }
+
+        async function saveSubject() {
+            const isEdit = document.getElementById('subjectEditMode').value === 'true';
+            const id = document.getElementById('subjectId').value.trim();
+            const name = document.getElementById('subjectName').value.trim();
+            const teacher = document.getElementById('subjectTeacher').value;
+            const perWeek = parseInt(document.getElementById('subjectPerWeek').value);
+            const needsLab = document.getElementById('subjectNeedsLab').checked;
+
+            // Get selected batches
+            const selectedBatches = Array.from(document.querySelectorAll('.batch-checkbox:checked')).map(cb => cb.value);
+
+            if (!id || !name || !teacher || !perWeek || selectedBatches.length === 0) {
+                alert('Please fill in all required fields and select at least one batch.');
+                return;
+            }
+
+            // Check for duplicate ID (only for new subjects)
+            if (!isEdit && subjects.some(s => s.id === id)) {
+                alert('A subject with this ID already exists.');
+                return;
+            }
+
+            try {
+                const url = isEdit ? `/api/subjects/${id}` : '/api/subjects';
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        name: name,
+                        teacher: teacher,
+                        batches: selectedBatches,
+                        per_week: perWeek,
+                        needs_lab: needsLab
+                    })
+                });
+
+                if (response.ok) {
+                    if (isEdit) {
+                        // Update existing subject
+                        const subjectIndex = subjects.findIndex(s => s.id === id);
+                        if (subjectIndex !== -1) {
+                            subjects[subjectIndex] = {
+                                id,
+                                name,
+                                teacher,
+                                batches: selectedBatches,
+                                per_week: perWeek,
+                                needs_lab: needsLab
+                            };
+                        }
+                    } else {
+                        // Add new subject
+                        subjects.push({
+                            id,
+                            name,
+                            teacher,
+                            batches: selectedBatches,
+                            per_week: perWeek,
+                            needs_lab: needsLab
+                        });
+                    }
+                    renderSubjects();
+
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('subjectModal'));
+                    modal.hide();
+
+                    // Show success message
+                    showToast(`Subject ${isEdit ? 'updated' : 'added'} successfully!`, 'success');
+                } else {
+                    const error = await response.json();
+                    alert('Error saving subject: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving subject. Please try again.');
+            }
+        }
+
+        function renderSubjects() {
+            const container = document.getElementById('subjects-container');
+            if (subjects.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-book fa-3x mb-3"></i>
+                        <p>No subjects added yet. Click "Add Subject" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = subjects.map(s => `
+                <div class="card mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="text-primary">${s.id}</strong>
+                            <span class="badge bg-warning ms-2">${s.credits} credits</span>
+                            ${s.needs_lab ? '<span class="badge bg-danger ms-1">Lab Required</span>' : ''}
+                            <br>
+                            <small class="text-muted">${s.name}</small><br>
+                            <small class="text-muted">Teacher: ${s.teacher} | Batches: ${s.batches.join(', ')} | ${s.per_week} classes/week</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="editSubject('${s.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeSubject('${s.id}')">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeSubject(id) {
+            subjects = subjects.filter(s => s.id !== id);
+            renderSubjects();
+        }
+
+        // Batch functions
+        function addBatch() {
+            // Reset form
+            document.getElementById('batchForm').reset();
+            document.getElementById('batchEditMode').value = 'false';
+            // Reset modal title
+            document.getElementById('batchModalLabel').innerHTML = '<i class="fas fa-users-cog me-2"></i>Add New Batch';
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('batchModal'));
+            modal.show();
+        }
+
+        function editBatch(id) {
+            const batch = batches.find(b => b.id === id);
+            if (!batch) return;
+
+            // Populate form
+            document.getElementById('batchId').value = batch.id;
+            document.getElementById('batchName').value = batch.name;
+            document.getElementById('batchSize').value = batch.size;
+            document.getElementById('batchDepartment').value = batch.department || '';
+            document.getElementById('batchShift').value = batch.shift || 'morning';
+            document.getElementById('batchEditMode').value = 'true';
+
+            // Update modal title
+            document.getElementById('batchModalLabel').innerHTML = '<i class="fas fa-users-cog me-2"></i>Edit Batch';
+
+            // Show modal
+            const modal = new bootstrap.Modal(document.getElementById('batchModal'));
+            modal.show();
+        }
+
+        async function saveBatch() {
+            const isEdit = document.getElementById('batchEditMode').value === 'true';
+            const id = document.getElementById('batchId').value.trim();
+            const name = document.getElementById('batchName').value.trim();
+            const size = parseInt(document.getElementById('batchSize').value);
+            const department = document.getElementById('batchDepartment').value.trim();
+            const shift = document.getElementById('batchShift').value;
+
+            if (!id || !name || !size) {
+                alert('Please fill in all required fields.');
+                return;
+            }
+
+            // Check for duplicate ID (only for new batches)
+            if (!isEdit && batches.some(b => b.id === id)) {
+                alert('A batch with this ID already exists.');
+                return;
+            }
+
+            try {
+                const url = isEdit ? `/api/batches/${id}` : '/api/batches';
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: id,
+                        name: name,
+                        size: size,
+                        department: department || 'General',
+                        shift: shift
+                    })
+                });
+
+                if (response.ok) {
+                    if (isEdit) {
+                        // Update existing batch
+                        const batchIndex = batches.findIndex(b => b.id === id);
+                        if (batchIndex !== -1) {
+                            batches[batchIndex] = {
+                                id,
+                                name,
+                                size,
+                                department: department || 'General',
+                                shift: shift
+                            };
+                        }
+                    } else {
+                        // Add new batch
+                        batches.push({
+                            id,
+                            name,
+                            size,
+                            department: department || 'General',
+                            shift: shift
+                        });
+                    }
+                    renderBatches();
+
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('batchModal'));
+                    modal.hide();
+
+                    // Show success message
+                    showToast('Batch added successfully!', 'success');
+                } else {
+                    const error = await response.json();
+                    alert('Error saving batch: ' + (error.error || 'Unknown error'));
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error saving batch. Please try again.');
+            }
+        }
+
+        function renderBatches() {
+            const container = document.getElementById('batches-container');
+            if (batches.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-graduation-cap fa-3x mb-3"></i>
+                        <p>No batches added yet. Click "Add Batch" to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = batches.map(b => `
+                <div class="card mb-3">
+                    <div class="card-body d-flex justify-content-between align-items-center">
+                        <div>
+                            <strong class="text-primary">${b.id}</strong>
+                            <span class="badge bg-success ms-2">${b.department}</span><br>
+                            <small class="text-muted">${b.name} - ${b.size} students</small>
+                        </div>
+                        <div>
+                            <button class="btn btn-outline-primary btn-sm me-2" onclick="editBatch('${b.id}')">
+                                <i class="fas fa-edit"></i> Edit
+                            </button>
+                            <button class="btn btn-outline-danger btn-sm" onclick="removeBatch('${b.id}')">
+                                <i class="fas fa-trash"></i> Remove
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function removeBatch(id) {
+            batches = batches.filter(b => b.id !== id);
+            renderBatches();
+        }
+
+        // Generate timetable
+        async function generateTimetable() {
+            // Update config from form
+            config.daysPerWeek = parseInt(document.getElementById('daysPerWeek').value);
+            config.slotsPerDay = parseInt(document.getElementById('slotsPerDay').value);
+            config.maxClassesPerDay = parseInt(document.getElementById('maxClassesPerDay').value);
+            config.iterations = parseInt(document.getElementById('iterations').value);
+            config.harmonyMemorySize = parseInt(document.getElementById('harmonyMemorySize').value);
+            config.pitchAdjustmentRate = parseFloat(document.getElementById('pitchAdjustmentRate').value);
+
+            // Validate data with more detailed checks
+            if (classrooms.length === 0 || faculty.length === 0 || subjects.length === 0 || batches.length === 0) {
+                alert('Please add at least one classroom, faculty member, subject, and batch before generating timetable.');
+                return;
+            }
+
+            // Check for minimum resource requirements
+            const totalSlotsNeeded = subjects.reduce((total, subject) => {
+                return total + (subject.per_week * subject.batches.length);
+            }, 0);
+
+            const availableSlots = config.daysPerWeek * config.slotsPerDay;
+            const totalSlotsAvailable = availableSlots * classrooms.length;
+
+            if (totalSlotsNeeded > totalSlotsAvailable) {
+                alert(`Warning: You need approximately ${totalSlotsNeeded} class slots but only have ${totalSlotsAvailable} available (${availableSlots} per day × ${classrooms.length} rooms × ${config.daysPerWeek} days).\n\nConsider:\n• Adding more classrooms\n• Increasing slots per day\n• Reducing classes per week for subjects`);
+                return;
+            }
+
+            // Check faculty workload
+            const facultyWorkload = {};
+            subjects.forEach(subject => {
+                const teacherId = subject.teacher;
+                if (!facultyWorkload[teacherId]) {
+                    facultyWorkload[teacherId] = 0;
+                }
+                facultyWorkload[teacherId] += subject.per_week * subject.batches.length;
+            });
+
+            const overloadedFaculty = Object.entries(facultyWorkload).filter(([teacherId, workload]) => {
+                return workload > (config.daysPerWeek * config.maxClassesPerDay);
+            });
+
+            if (overloadedFaculty.length > 0) {
+                const names = overloadedFaculty.map(([id, workload]) => {
+                    const teacher = faculty.find(f => f.id === id);
+                    return `${teacher ? teacher.name : id} (${workload} classes/week)`;
+                }).join(', ');
+                alert(`Warning: Some faculty members are overloaded:\n${names}\n\nMaximum recommended: ${config.daysPerWeek * config.maxClassesPerDay} classes/week per faculty.\n\nConsider:\n• Adding more faculty\n• Reducing classes per week\n• Increasing max classes per day`);
+                return;
+            }
+
+            const data = {
+                config: {
+                    'DAYS_OF_WEEK': ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].slice(0, config.daysPerWeek),
+                    'SLOTS_PER_DAY': config.slotsPerDay,
+                    'HARMONY_MEMORY_SIZE': config.harmonyMemorySize,
+                    'PITCH_ADJUSTMENT_RATE': config.pitchAdjustmentRate,
+                    'NUM_GENERATIONS': config.iterations
+                },
+                rooms: classrooms,
+                teachers: faculty,
+                batches: batches,
+                subjects: subjects
+            };
+
+            // Show loading
+            const generateBtn = document.querySelector('button[onclick="generateTimetable()"]');
+            const originalText = generateBtn.innerHTML;
+            generateBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Generating...';
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    displayResults(result);
+                } else {
+                    let errorMessage = result.error || 'Unknown error';
+                    if (errorMessage.includes('sufficient classrooms')) {
+                        errorMessage += '\n\nSuggestions:\n• Add more classrooms\n• Add more faculty members\n• Reduce classes per week for subjects\n• Add more time slots per day';
+                    } else if (errorMessage.includes('Constraints might be too tight')) {
+                        errorMessage += '\n\nSuggestions:\n• Increase the number of days per week\n• Add more time slots per day\n• Add more classrooms\n• Reduce faculty workload';
+                    }
+                    alert('Error generating timetable: ' + errorMessage);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error generating timetable. Please check your data and try again.');
+            } finally {
+                generateBtn.innerHTML = originalText;
+                generateBtn.disabled = false;
+            }
+        }
+
+        // Load sample data
+        function loadSampleData() {
+            classrooms = [
+                { id: 'C101', name: 'Lecture Room 101', capacity: 60, room_type: 'Lecture' },
+                { id: 'C102', name: 'Lecture Room 102', capacity: 45, room_type: 'Lecture' },
+                { id: 'C103', name: 'Lecture Room 103', capacity: 40, room_type: 'Lecture' },
+                { id: 'C104', name: 'Lecture Room 104', capacity: 50, room_type: 'Lecture' },
+                { id: 'C105', name: 'Lecture Room 105', capacity: 35, room_type: 'Lecture' },
+                { id: 'LAB1', name: 'Computer Lab 1', capacity: 30, room_type: 'Lab' },
+                { id: 'LAB2', name: 'Physics Lab', capacity: 25, room_type: 'Lab' },
+                { id: 'LAB3', name: 'Chemistry Lab', capacity: 25, room_type: 'Lab' }
+            ];
+
+            faculty = [
+                { id: 'F001', name: 'Dr. Sarah Johnson', subjects: ['Mathematics', 'Statistics'], department: 'Mathematics' },
+                { id: 'F002', name: 'Prof. Michael Chen', subjects: ['Physics'], department: 'Physics' },
+                { id: 'F003', name: 'Dr. Emily Davis', subjects: ['Chemistry'], department: 'Chemistry' },
+                { id: 'F004', name: 'Prof. Robert Wilson', subjects: ['Computer Science'], department: 'Computer Science' },
+                { id: 'F005', name: 'Dr. Lisa Anderson', subjects: ['English', 'Communication'], department: 'Languages' },
+                { id: 'F006', name: 'Prof. David Brown', subjects: ['Mathematics'], department: 'Mathematics' },
+                { id: 'F007', name: 'Dr. Maria Garcia', subjects: ['Biology'], department: 'Biology' }
+            ];
+
+            subjects = [
+                { id: 'MATH101', name: 'Calculus I', teacher: 'F001', batches: ['CS1', 'ME1', 'EE1'], per_week: 6, needs_lab: false, credits: 4 },
+                { id: 'MATH201', name: 'Linear Algebra', teacher: 'F006', batches: ['CS1', 'ME1'], per_week: 5, needs_lab: false, credits: 3 },
+                { id: 'PHYS101', name: 'Physics I', teacher: 'F002', batches: ['CS1', 'ME1'], per_week: 5, needs_lab: true, credits: 4 },
+                { id: 'CHEM101', name: 'Chemistry I', teacher: 'F003', batches: ['CS1'], per_week: 5, needs_lab: true, credits: 4 },
+                { id: 'CS101', name: 'Programming Fundamentals', teacher: 'F004', batches: ['CS1'], per_week: 7, needs_lab: true, credits: 4 },
+                { id: 'CS201', name: 'Data Structures', teacher: 'F004', batches: ['CS1'], per_week: 6, needs_lab: false, credits: 4 },
+                { id: 'ENG101', name: 'English Communication', teacher: 'F005', batches: ['CS1', 'ME1', 'EE1'], per_week: 5, needs_lab: false, credits: 2 },
+                { id: 'BIO101', name: 'Biology I', teacher: 'F007', batches: ['CS1'], per_week: 5, needs_lab: true, credits: 3 },
+                { id: 'MECH101', name: 'Engineering Mechanics', teacher: 'F001', batches: ['ME1', 'EE1'], per_week: 6, needs_lab: false, credits: 4 },
+                { id: 'ELEC101', name: 'Basic Electronics', teacher: 'F002', batches: ['EE1'], per_week: 6, needs_lab: true, credits: 4 },
+                { id: 'CS301', name: 'Algorithms', teacher: 'F004', batches: ['CS1'], per_week: 5, needs_lab: false, credits: 4 },
+                { id: 'MATH301', name: 'Discrete Mathematics', teacher: 'F006', batches: ['CS1'], per_week: 5, needs_lab: false, credits: 3 },
+                { id: 'PHY201', name: 'Physics II', teacher: 'F002', batches: ['ME1'], per_week: 4, needs_lab: true, credits: 4 },
+                { id: 'CHEM201', name: 'Organic Chemistry', teacher: 'F003', batches: ['CS1'], per_week: 4, needs_lab: true, credits: 4 }
+            ];
+
+            batches = [
+                { id: 'CS1', name: 'Computer Science Batch A', size: 45, department: 'Computer Science' },
+                { id: 'ME1', name: 'Mechanical Engineering Batch A', size: 40, department: 'Mechanical Engineering' },
+                { id: 'EE1', name: 'Electrical Engineering Batch A', size: 35, department: 'Electrical Engineering' }
+            ];
+
+            renderAllData();
+            alert('Enhanced sample data for a higher education institution has been loaded successfully!\n\nThis includes:\n• 8 classrooms (5 lecture rooms + 3 labs)\n• 7 faculty members\n• 14 subjects with very high weekly class loads\n• 3 student batches\n\nTotal classes to schedule: ~160+ classes across the week\n\nThis ensures complete slot coverage for Monday through Friday!\n\nReady to generate multiple conflict-free timetables filling all time slots!\n\n💡 Tip: Use "Clear All Data" to start fresh with your own custom data.');
+        }
+
+        // Display results
+        function displayResults(result) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsContainer = document.getElementById('timetable-results');
+
+            if (result.timetables && result.timetables.length > 0) {
+                let html = `
+                    <div class="alert alert-success mb-4">
+                        <h5><i class="fas fa-check-circle me-2"></i>${result.timetables.length} Optimized Timetables Generated Successfully!</h5>
+                        <p class="mb-0">Each timetable provides a different conflict-free scheduling option.</p>
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h3 class="text-primary">${result.timetables[0].slots.length}</h3>
+                                    <p class="text-muted mb-0">Classes per Timetable</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h3 class="text-success">${new Set(result.timetables[0].slots.map(s => s.room_id)).size}</h3>
+                                    <p class="text-muted mb-0">Rooms Utilized</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card text-center">
+                                <div class="card-body">
+                                    <h3 class="text-info">${new Set(result.timetables[0].slots.map(s => s.teacher_id)).size}</h3>
+                                    <p class="text-muted mb-0">Faculty Assigned</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Display each timetable
+                result.timetables.forEach((timetable, index) => {
+                    const daySlots = {};
+                    timetable.slots.forEach(slot => {
+                        if (!daySlots[slot.day]) {
+                            daySlots[slot.day] = [];
+                        }
+                        daySlots[slot.day].push(slot);
+                    });
+
+                    html += `
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-calendar-alt me-2"></i>
+                                    Timetable Option ${index + 1}
+                                    <span class="badge bg-light text-dark ms-2">Score: ${timetable.score.toFixed(2)}</span>
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th style="width: 15%;"><i class="fas fa-calendar-day me-1"></i>Day</th>
+                                                ${Array.from({length: config.slotsPerDay}, (_, i) => `<th style="width: ${85/config.slotsPerDay}%;"><i class="fas fa-clock me-1"></i>Slot ${i + 1}</th>`).join('')}
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                    `;
+
+                    // Get all days in order
+                    const daysOrder = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    const availableDays = daysOrder.slice(0, config.daysPerWeek);
+
+                    availableDays.forEach(day => {
+                        html += `<tr><td><strong>${day}</strong></td>`;
+                        for (let slotIdx = 0; slotIdx < config.slotsPerDay; slotIdx++) {
+                            const daySlot = daySlots[day]?.find(s => s.slot_index === slotIdx);
+                            if (daySlot) {
+                                html += `
+                                    <td>
+                                        <div class="card border-0 bg-light">
+                                            <div class="card-body p-2">
+                                                <strong class="text-primary">${daySlot.subject_name}</strong><br>
+                                                <small class="text-muted">
+                                                    <i class="fas fa-user me-1"></i>${daySlot.teacher_name}<br>
+                                                    <i class="fas fa-users me-1"></i>${daySlot.batch_name}<br>
+                                                    <i class="fas fa-building me-1"></i>${daySlot.room_id}
+                                                </small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                `;
+                            } else {
+                                html += `<td class="text-center text-muted">-</td>`;
+                            }
+                        }
+                        html += `</tr>`;
+                    });
+
+                    html += `
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                html += `
+                    <div class="text-center mt-4">
+                        <a href="{{ url_for('serve_dashboard') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-chart-bar me-2"></i>View & Approve in Dashboard
+                        </a>
+                        <button type="button" class="btn btn-success btn-lg ms-3" onclick="generateTimetable()">
+                            <i class="fas fa-redo me-2"></i>Generate More Options
+                        </button>
+                    </div>
+                `;
+
+                resultsContainer.innerHTML = html;
+                resultsSection.classList.remove('d-none');
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                resultsContainer.innerHTML = `
+                    <div class="alert alert-warning">
+                        <h5><i class="fas fa-exclamation-triangle me-2"></i>No Valid Timetables Found</h5>
+                        <p>The algorithm couldn't find conflict-free timetables with the current constraints. Try adjusting the parameters or adding more resources.</p>
+                    </div>
+                `;
+                resultsSection.classList.remove('d-none');
+            }
+        }
+
+        // Clear all data
+        function clearAllData() {
+            if (confirm('Are you sure you want to clear all data? This will remove all classrooms, faculty, subjects, and batches.')) {
+                classrooms = [];
+                faculty = [];
+                subjects = [];
+                batches = [];
+                renderAllData();
+                alert('All data has been cleared. You can now add your own data.');
+            }
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'success') {
+            // Create toast container if it doesn't exist
+            let toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.className = 'toast-container position-fixed top-0 end-0 p-3';
+                toastContainer.style.zIndex = '9999';
+                document.body.appendChild(toastContainer);
+            }
+
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-white bg-${type} border-0`;
+            toast.setAttribute('role', 'alert');
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">${message}</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+
+            // Initialize and show toast
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            // Remove toast after it's hidden
+            toast.addEventListener('hidden.bs.toast', () => {
+                toast.remove();
+            });
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadData();
+        });
+    </script>
+
+    <!-- Modals for Adding Data -->
+    <!-- Classroom Modal -->
+    <div class="modal fade" id="classroomModal" tabindex="-1" aria-labelledby="classroomModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="classroomModalLabel">
+                        <i class="fas fa-building me-2"></i>Add New Classroom
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="classroomForm">
+                        <input type="hidden" id="classroomEditMode" value="false">
+                        <div class="mb-3">
+                            <label for="classroomId" class="form-label">Classroom ID</label>
+                            <input type="text" class="form-control" id="classroomId" placeholder="e.g., C101" required>
+                            <div class="form-text">Unique identifier for the classroom</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="classroomName" class="form-label">Classroom Name</label>
+                            <input type="text" class="form-control" id="classroomName" placeholder="e.g., Lecture Room 101" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="classroomCapacity" class="form-label">Capacity</label>
+                            <input type="number" class="form-control" id="classroomCapacity" placeholder="e.g., 60" min="1" required>
+                            <div class="form-text">Number of seats available</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="classroomType" class="form-label">Room Type</label>
+                            <select class="form-select" id="classroomType" required>
+                                <option value="">Select room type</option>
+                                <option value="Lecture">Lecture Room</option>
+                                <option value="Lab">Laboratory</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="classroomSaveBtn" onclick="saveClassroom()">
+                        <i class="fas fa-save me-2"></i>Add Classroom
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Faculty Modal -->
+    <div class="modal fade" id="facultyModal" tabindex="-1" aria-labelledby="facultyModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="facultyModalLabel">
+                        <i class="fas fa-users me-2"></i>Add New Faculty Member
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="facultyForm">
+                        <input type="hidden" id="facultyEditMode" value="false">
+                        <div class="mb-3">
+                            <label for="facultyId" class="form-label">Faculty ID</label>
+                            <input type="text" class="form-control" id="facultyId" placeholder="e.g., F001" required>
+                            <div class="form-text">Unique identifier for the faculty member</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facultyName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="facultyName" placeholder="e.g., Dr. Sarah Johnson" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facultySubjects" class="form-label">Subjects Taught</label>
+                            <input type="text" class="form-control" id="facultySubjects" placeholder="e.g., Mathematics, Physics" required>
+                            <div class="form-text">Comma-separated list of subjects</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="facultyDepartment" class="form-label">Department</label>
+                            <input type="text" class="form-control" id="facultyDepartment" placeholder="e.g., Mathematics" required>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="facultySaveBtn" onclick="saveFaculty()">
+                        <i class="fas fa-save me-2"></i>Add Faculty
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Subject Modal -->
+    <div class="modal fade" id="subjectModal" tabindex="-1" aria-labelledby="subjectModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="subjectModalLabel">
+                        <i class="fas fa-book me-2"></i>Add New Subject
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="subjectForm">
+                        <input type="hidden" id="subjectEditMode" value="false">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="subjectId" class="form-label">Subject ID</label>
+                                    <input type="text" class="form-control" id="subjectId" placeholder="e.g., MATH101" required>
+                                    <div class="form-text">Unique identifier for the subject</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="subjectName" class="form-label">Subject Name</label>
+                                    <input type="text" class="form-control" id="subjectName" placeholder="e.g., Calculus I" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="subjectTeacher" class="form-label">Assigned Teacher</label>
+                                    <select class="form-select" id="subjectTeacher" required>
+                                        <option value="">Select teacher</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="subjectPerWeek" class="form-label">Classes Per Week</label>
+                                    <input type="number" class="form-control" id="subjectPerWeek" placeholder="e.g., 3" min="1" max="10" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="subjectBatches" class="form-label">Assigned Batches</label>
+                            <div id="batchesCheckboxes" class="border rounded p-3">
+                                <div class="form-text mb-2">Select batches for this subject:</div>
+                                <!-- Batches will be populated dynamically -->
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="subjectNeedsLab">
+                                <label class="form-check-label" for="subjectNeedsLab">
+                                    This subject requires laboratory facilities
+                                </label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="subjectSaveBtn" onclick="saveSubject()">
+                        <i class="fas fa-save me-2"></i>Add Subject
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Batch Modal -->
+    <div class="modal fade" id="batchModal" tabindex="-1" aria-labelledby="batchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="batchModalLabel">
+                        <i class="fas fa-users-cog me-2"></i>Add New Batch
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="batchForm">
+                        <input type="hidden" id="batchEditMode" value="false">
+                        <div class="mb-3">
+                            <label for="batchId" class="form-label">Batch ID</label>
+                            <input type="text" class="form-control" id="batchId" placeholder="e.g., CS1" required>
+                            <div class="form-text">Unique identifier for the batch</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="batchName" class="form-label">Batch Name</label>
+                            <input type="text" class="form-control" id="batchName" placeholder="e.g., Computer Science Batch A" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="batchSize" class="form-label">Batch Size</label>
+                                    <input type="number" class="form-control" id="batchSize" placeholder="e.g., 45" min="1" required>
+                                    <div class="form-text">Number of students</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="batchDepartment" class="form-label">Department</label>
+                                    <input type="text" class="form-control" id="batchDepartment" placeholder="e.g., Computer Science" required>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBatch()">
+                        <i class="fas fa-save me-2"></i>Add Batch
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
